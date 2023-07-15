@@ -8,6 +8,9 @@ app = Flask(__name__)
 
 conexion = sql.MySQLConnectorMaster()
 BADMETHOD = {"message":"Metodo no permitido"}    
+   
+   
+#CATEGORY
     
     
 @app.route("/categories", methods=['POST'])
@@ -91,6 +94,9 @@ def update_category(category_id):
         return jsonify(BADMETHOD), 405
 
 
+#PRODUCTS
+
+
 @app.route('/products',methods=['POST'])
 def add_product():
     if request.method == 'POST':
@@ -121,6 +127,55 @@ def get_products():
             return f'Error al obtener las categorias: {str(e)}'
     else:
         return jsonify(BADMETHOD),405
+
+
+@app.route('/products/<name>', methods=['GET'])
+def get_product_by_name(name):
+    if request.method == 'GET':
+        try:
+            conexion.connect()
+            result = conexion.execute_procedure('obtener_producto_por_nombre',name)
+            conexion.disconnect()
+            return jsonify({"response":result})
+        except Exception as e:
+            return f"Error al obtner el producto: {str(e)}"
+    else:
+        return jsonify(BADMETHOD),405
+
+
+@app.route('/products/<numero_serie>', methods=['PATCH'])
+def change_state_of_a_product(numero_serie):
+    if request.method == 'PATCH':
+        sSQL, values = productTable.change_state(numero_serie)
+        try:
+            conexion.connect()
+            conexion.execute_post(sSQL, values)
+            conexion.disconnect()
+            return jsonify({"message":"Estado del producto cambiado exittosamente"})
+        except Exception as e:
+            return f"Error al cambiar el estado del producto {str(e)}"
+    else:
+        return jsonify(BADMETHOD),405
+    
+    
+@app.route('/products/<numero_serie>/update', methods=['PUT'])
+def update_product(numero_serie):
+    if request.method == 'PUT':
+        data = request.json
+        sSQL, values = productTable.update_product(numero_serie,data)
+        try:
+            conexion.connect()
+            conexion.execute_post(sSQL, values)
+            conexion.disconnect()
+            response = {"message": "Producto actualizada exitasamente"}
+            return jsonify(response)
+        except Exception as e:
+            return f"Error al actualizar el producto: {str(e)}"
+    else:
+        return jsonify(BADMETHOD), 405
+
+
+#INVENTORY
 
 
 @app.route('/inventory', methods=['POST'])
@@ -154,6 +209,53 @@ def get_inventories():
     else:
         return jsonify(BADMETHOD),405
 
+
+@app.route('/inventory/<name>', methods=['GET'])
+def get_inventory_by_name(name):
+    if request.method == 'GET':
+        try:
+            conexion.connect()
+            result = conexion.execute_procedure('obtener_inventario_por_nombre',name)
+            conexion.disconnect()
+            return jsonify({'response': result})
+        except Exception as e:
+            return f"Error al obtener el inventario: {str(e)}"
+    else:
+        return jsonify(BADMETHOD),405
+
+
+@app.route('/inventory/<numero_serie>', methods=['PATCH'])
+def change_state_of_a_inventory(numero_serie):
+    if request.method == 'PATCH':
+        data = request.json
+        sSQL, values = inventoryTable.change_state(numero_serie, data)
+        try:
+            conexion.connect()
+            conexion.execute_post(sSQL, values)
+            conexion.disconnect()
+            response = {"message":"Estado del inventario cambiado exitosamente"}
+            return response
+        except Exception as e:
+            return f"Error al cambiar el estado del inventario: {str(e)}"
+    else:
+        return jsonify(BADMETHOD),405
+    
+    
+@app.route('/inventory/<id_inventory>/update', methods=['PUT'])
+def update_inventory(id_inventory):
+    if request.method == 'PUT':
+        data = request.json
+        sSQL, values = inventoryTable.update_a_inventory(id_inventory, data)
+        try:
+            conexion.connect()
+            conexion.execute_post(sSQL, values)
+            conexion.disconnect()
+            response = {"message":"Cambios realizados al inventario exitosamente"}
+            return jsonify(response)
+        except Exception as e:
+            return f"Error al actualizar el inventario: {str(e)}"
+    else:
+        return jsonify(BADMETHOD), 405
 
 if __name__ == "__main__":
     app.run()

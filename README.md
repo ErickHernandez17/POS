@@ -1,2 +1,1 @@
-ENDPOINTS of method POST
-all ENDPOINTS of category
+All ENDPOINTS of Categories, Products and Inventories

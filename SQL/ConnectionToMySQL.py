@@ -70,6 +70,6 @@ class MySQLConnectorMaster:
             for result in cursor.stored_results():
                 resultados = result.fetchall()
             cursor.close()
-            return {"Codigo de estado":200,"Respuesta":resultados}
+            return resultados
         except error  as err:
             return {"Codigo de estados":102, "Contexto":"Error al ejecutar el procedimiento","Tipo de error":err}

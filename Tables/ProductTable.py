@@ -17,5 +17,27 @@ def insert(data):
 
 
 def select_all_products():
-    query = "SELECT `numero_Serie`,`nombre_producto`,`descripcion_producto`,`precio` FROM `catalogo_producto` WHERE `deleted`='0';"
+    query = "SELECT `numero_serie`,`nombre_producto`,`descripcion_producto`,`precio` FROM `catalogo_producto` WHERE `deleted`='0';"
     return query
+
+
+def change_state(numero_serie,data):
+    delete = data['delete']
+    query = "UPDATE `catalogo_producto` SET `deleted` = %s WHERE (`numero_serie`=%s);"
+    values = (delete, numero_serie)
+    return query, values
+
+
+def update_product(data):
+    numero_serie = data['numero_serie']
+    nombre = data['nombre']
+    marca = data['marca']
+    descripcion = data['descripcion']
+    presentacion = data['presentacion']
+    precio = data['precio']
+    categoria_id = data['categoria_id']
+    modified_date = data['modified_date']
+    modified_by = data['modified_by']
+    query = "UPDATE `catalogo_producto` SET `numero_serie`=%s, `nombre_producto`=%s, `marca`=%s,`descripcion_producto`=%s,`presentacion`=%s,`precio`=%f,`catalogo_tipos_id_tipo`=%i,`modified_date`=%s, `modified_by` = %s WHERE (`numero_serie` = %s);"
+    values = (numero_serie, nombre, marca, descripcion, presentacion, precio,categoria_id,modified_date, modified_by)
+    return query, values
