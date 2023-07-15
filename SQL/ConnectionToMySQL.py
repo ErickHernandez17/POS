@@ -4,7 +4,7 @@ from mysql.connector import Error as error
 
 
 
-class MySQLConnector:
+class MySQLConnectorMaster:
     def __init__(self):
         self._host = "localhost"
         self._user = "root"
@@ -43,7 +43,17 @@ class MySQLConnector:
             return {"Error en funcion execute_post":str(err)}
         
         
-    def execute_select(self, sSQL, values):
+    def execute_select_withoutt_values(self, sSQL):
+        try:
+            cursor = self._connection.cursor()
+            cursor.execute(sSQL)
+            result = cursor.fetchall()
+            return result
+        except error as err:
+            print(f"Error al ejecutar la consulta:\n{err}")
+            
+            
+    def execute_select_with_values(self, sSQL, values):
         try:
             cursor = self._connection.cursor()
             cursor.execute(sSQL, values)

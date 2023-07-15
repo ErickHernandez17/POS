@@ -6,14 +6,15 @@ from SQL import ConnectionToMySQL as sql
 
 app = Flask(__name__)
 
-conexion = sql.MySQLConnector()
+conexion = sql.MySQLConnectorMaster()
 BADMETHOD = {"message":"Metodo no permitido"}    
+    
     
 @app.route("/categories", methods=['POST'])
 def add_category():
     if request.method == 'POST':
         data = request.json
-        sSQL, values = categoryTable.insert_category(data)
+        sSQL, values = categoryTable.insert(data)
         try:
             conexion.connect()
             conexion.execute_post(sSQL, values)
@@ -29,17 +30,72 @@ def add_category():
 @app.route('/categories', methods=['GET'])
 def get_categories():
     if request.method == 'GET':
-        pass
+        sSQL =  categoryTable.select_all_categories()
+        try:
+            conexion.connect()
+            result = conexion.execute_select(sSQL)
+            conexion.disconnect()
+            return jsonify({"response": result})
+        except Exception as e:
+            return f'Error al obtener las categorias: {str(e)}'
     else:
         return jsonify(BADMETHOD),405
 
+
+@app.route('/categories/<name>', methods=['GET'])
+def get_category_by_name(name):
+    if request.method == 'GET':
+        sSQL, values =  categoryTable.select_category_by_name(name)
+        try:
+            conexion.connect()
+            result = conexion.execute_select_with_values(sSQL, values)
+            conexion.disconnect()
+            return jsonify({"response":result})
+        except Exception as e:
+            return f'Error al obtener la categoria: {str(e)}'
+    else:
+        return jsonify(BADMETHOD),405
+
+
+@app.route('/categories/<category_id>/state', methods=['PATCH'])
+def change_state_of_a_category(category_id):
+    if request.method == 'PATCH':
+        data = request.json
+        sSQL, values = categoryTable.change_state(category_id,data)
+        try:
+            conexion.connect()
+            conexion.execute_post(sSQL, values)
+            conexion.disconnect
+            response = {"message":"Estado de la categoria cambiada exitosamente"}
+            return jsonify(response)
+        except Exception as e:
+            return f'Error al cambiar el estado de la categoria: {str(e)}'
+    else:
+        return jsonify(BADMETHOD),405
+    
+    
+@app.route('/categories/<category_id>/update', methods=['PUT'])
+def update_category(category_id):
+    if request.method == 'PUT':
+        data = request.json
+        sSQL, values = categoryTable.update_product(data)
+        try:
+            conexion.connect()
+            conexion.execute_post(sSQL, values)
+            conexion.disconnect()
+            response = {"message": "Categoria actualizada exitasamente"}
+            return jsonify(response)
+        except Exception as e:
+            return f"Error al actualizar la cattegoria: {str(e)}"
+    else:
+        return jsonify(BADMETHOD), 405
 
 
 @app.route('/products',methods=['POST'])
 def add_product():
     if request.method == 'POST':
         data = request.json
-        sSQL, values = productTable(data)
+        sSQL, values = productTable.insert(data)
         try:
             conexion.connect()
             conexion.execute_post(sSQL, values)
@@ -50,13 +106,28 @@ def add_product():
             return f'Error al agregar el producto: {str(e)}'
     else:
         return jsonify(BADMETHOD),405
+    
+
+@app.route('/products', methods=['GET'])
+def get_products():
+    if request.method == 'GET':
+        sSQL=  productTable.select_all_products()
+        try:
+            conexion.connect()
+            result = conexion.execute_select(sSQL)
+            conexion.disconnect()
+            return jsonify({"response": result})
+        except Exception as e:
+            return f'Error al obtener las categorias: {str(e)}'
+    else:
+        return jsonify(BADMETHOD),405
 
 
 @app.route('/inventory', methods=['POST'])
 def add_inventory():
     if request.method == 'POST':
         data = request.json
-        sSQL, values = inventoryTable(data)
+        sSQL, values = inventoryTable.insert(data)
         try:
             conexion.connect()
             conexion.execute_post(sSQL, values)
@@ -69,7 +140,19 @@ def add_inventory():
         return jsonify(BADMETHOD),405
 
 
-
+@app.route('/inventory',methods=['GET'])
+def get_inventories():
+    if request.method == 'GET':
+        sSQL = inventoryTable.selectt_all_inventories()
+        try:
+            conexion.connect()
+            result =  conexion.execute_select(sSQL)
+            conexion.disconnect()
+            return jsonify({"response":result})
+        except Exception as e:
+            return f"Error al obtener el inventario: {str(e)}"
+    else:
+        return jsonify(BADMETHOD),405
 
 
 if __name__ == "__main__":
