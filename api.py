@@ -201,7 +201,7 @@ def get_inventories():
         sSQL = inventoryTable.selectt_all_inventories()
         try:
             conexion.connect()
-            result =  conexion.execute_select(sSQL)
+            result =  conexion.execute_select_withoutt_values(sSQL)
             conexion.disconnect()
             return jsonify({"response":result})
         except Exception as e:
