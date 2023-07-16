@@ -6,8 +6,8 @@ def insert(data):
     marca = data['marca']
     presentacion = data['presentacion']
     descripcion = data['descripcion']
-    precio = data['presentacion']
-    id_categoria = data['id_categoria']
+    precio = float(data['precio'])
+    id_categoria = int(data['id_categoria'])
     created_by = data['created_by']
     delete = data['delete']
     
@@ -28,16 +28,16 @@ def change_state(numero_serie,data):
     return query, values
 
 
-def update_product(data):
-    numero_serie = data['numero_serie']
+def update_product(old_numero_serie,data):
+    new_numero_serie = data['numero_serie']
     nombre = data['nombre']
     marca = data['marca']
     descripcion = data['descripcion']
     presentacion = data['presentacion']
-    precio = data['precio']
-    categoria_id = data['categoria_id']
+    precio = float(data['precio'])
+    categoria_id = int(data['categoria_id'])
     modified_date = data['modified_date']
     modified_by = data['modified_by']
-    query = "UPDATE `catalogo_producto` SET `numero_serie`=%s, `nombre_producto`=%s, `marca`=%s,`descripcion_producto`=%s,`presentacion`=%s,`precio`=%f,`catalogo_tipos_id_tipo`=%i,`modified_date`=%s, `modified_by` = %s WHERE (`numero_serie` = %s);"
-    values = (numero_serie, nombre, marca, descripcion, presentacion, precio,categoria_id,modified_date, modified_by)
+    query = "UPDATE `catalogo_producto` SET `numero_serie`=%s, `nombre_producto`=%s, `marca`=%s,`descripcion_producto`=%s,`presentacion`=%s,`precio`=%s,`catalogo_tipos_id_tipo`=%s,`modified_date`=%s, `modified_by` = %s WHERE (`numero_serie` = %s);"
+    values = (new_numero_serie, nombre, marca, descripcion, presentacion, precio,categoria_id,modified_date, modified_by, old_numero_serie)
     return query, values

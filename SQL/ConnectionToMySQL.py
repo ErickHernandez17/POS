@@ -22,7 +22,7 @@ class MySQLConnectorMaster:
                 database = self._database
             )
             if self._connection.is_connected():
-                print("Conexion exitosa")
+                pass
         except error as err:
             return {"Codigo de estado":100, "Contexto":"No hay conexion a la base de datos", "Tipo de error":err}
         
@@ -38,7 +38,6 @@ class MySQLConnectorMaster:
             cursor = self._connection.cursor()
             cursor.execute(sSQL, values)
             self._connection.commit()
-            return {"Codigo de estado":200,"Respuesta":"POST ejecutado exitosamente"}
         except error as err:
             return {"Error en funcion execute_post":str(err)}
         

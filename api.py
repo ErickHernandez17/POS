@@ -36,7 +36,7 @@ def get_categories():
         sSQL =  categoryTable.select_all_categories()
         try:
             conexion.connect()
-            result = conexion.execute_select(sSQL)
+            result = conexion.execute_select_withoutt_values(sSQL)
             conexion.disconnect()
             return jsonify({"response": result})
         except Exception as e:
@@ -60,7 +60,7 @@ def get_category_by_name(name):
         return jsonify(BADMETHOD),405
 
 
-@app.route('/categories/<category_id>/state', methods=['PATCH'])
+@app.route('/categories/<category_id>', methods=['PATCH'])
 def change_state_of_a_category(category_id):
     if request.method == 'PATCH':
         data = request.json
@@ -77,11 +77,11 @@ def change_state_of_a_category(category_id):
         return jsonify(BADMETHOD),405
     
     
-@app.route('/categories/<category_id>/update', methods=['PUT'])
+@app.route('/categories/<category_id>', methods=['PUT'])
 def update_category(category_id):
     if request.method == 'PUT':
         data = request.json
-        sSQL, values = categoryTable.update_product(data)
+        sSQL, values = categoryTable.update_product(category_id,data)
         try:
             conexion.connect()
             conexion.execute_post(sSQL, values)
@@ -120,7 +120,7 @@ def get_products():
         sSQL=  productTable.select_all_products()
         try:
             conexion.connect()
-            result = conexion.execute_select(sSQL)
+            result = conexion.execute_select_withoutt_values(sSQL)
             conexion.disconnect()
             return jsonify({"response": result})
         except Exception as e:
@@ -146,7 +146,8 @@ def get_product_by_name(name):
 @app.route('/products/<numero_serie>', methods=['PATCH'])
 def change_state_of_a_product(numero_serie):
     if request.method == 'PATCH':
-        sSQL, values = productTable.change_state(numero_serie)
+        data = request.json
+        sSQL, values = productTable.change_state(numero_serie, data)
         try:
             conexion.connect()
             conexion.execute_post(sSQL, values)

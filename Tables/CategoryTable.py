@@ -24,7 +24,7 @@ def select_category_by_name(name):
 
 def change_state(category_id, data):
     delete = data['delete']
-    query = "UPDATE `catalogo_tipos` SET `delete` = %s WHERE (`id_tipo` = %i);"
+    query = "UPDATE `catalogo_tipos` SET `delete` = %s WHERE (`id_tipo` = %s);"
     values = (delete, category_id)
     return query, values
 
@@ -34,8 +34,8 @@ def update_product(category_id, data):
     modified_date = data['modified_date']
     descripcion = data['descripcion']
     modified_by = data['modified_by']
-    query = "UPDATE `catalogo_tipos` SET `nombre_tipo` = %s, `modified_date` = %s,`descripcion_tipo` = %s, `modified_by` = %s WHERE (`id_tipo` = %i);"
-    values = (nombre, modified_date, descripcion, modified_by)
+    query = "UPDATE `catalogo_tipos` SET `nombre_tipo` = %s, `modified_date` = %s,`descripcion_tipo` = %s, `modified_by` = %s WHERE (`id_tipo` = %s);"
+    values = (nombre, modified_date, descripcion, modified_by, category_id)
     return query, values
     
         

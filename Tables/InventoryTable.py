@@ -1,10 +1,10 @@
 
 def insert(data):
     numero_serie = data['numero_serie']
-    cantidad = data['cantidad']
+    cantidad = int(data['cantidad'])
     created_by = data['created_by']
     delete = data['delete']
-    query = "INSERT INTO `inventario` (`numero_serie`,`cantidad`, `created_by`, `deleted`) VALUES (%s,%s,%s,%s);"
+    query = "INSERT INTO `inventario`(`numero_serie`,`cantidad`, `created_by`, `deleted`) VALUES (%s,%s,%s,%s);"
     values = (numero_serie, cantidad, created_by, delete)
     return query, values
 
@@ -21,11 +21,11 @@ def change_state(numero_serie,data):
     return query, values
 
 
-def update_a_inventory(numero_serie, data):
-    numero_serie = data['numero_serie']
-    cantidad = data['cantidad']
+def update_a_inventory(old_numero_serie, data):
+    new_numero_serie = data['numero_serie']
+    cantidad = int(data['cantidad'])
     modified_date = data['modified_date']
     modified_by = data['modified_by']
-    query = "UPDATE `inventario` SET `numero_serie`=%s, `cantidad`=%i, `modified_date`=%s, `modified_by`=%s WHERE (`numero_serie`=%s);"
-    values = (numero_serie, cantidad, modified_date, modified_by)
+    query = "UPDATE `inventario` SET `numero_serie`=%s, `cantidad`=%s, `modified_date`=%s, `modified_by`=%s WHERE (`numero_serie`=%s);"
+    values = (new_numero_serie, cantidad, modified_date, modified_by, old_numero_serie)
     return query, values
