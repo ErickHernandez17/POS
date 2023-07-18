@@ -1,2 +1,2 @@
 All ENDPOINTS of Categories, Products and Inventories
-BUGS FIXED
+GET user information endpointt and update the ip and tthe login count of the users table are Added

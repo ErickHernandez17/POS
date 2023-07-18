@@ -2,12 +2,19 @@ from flask import Flask, jsonify, request
 import Tables.CategoryTable as categoryTable
 import Tables.ProductTable as productTable
 import Tables.InventoryTable as inventoryTable
+import Tables.UsersTable as usersTable
+import get_ip
 from SQL import ConnectionToMySQL as sql
 
 app = Flask(__name__)
 
 conexion = sql.MySQLConnectorMaster()
 BADMETHOD = {"message":"Metodo no permitido"}    
+   
+   
+"""
+======================== ENDPOINTTS OF THE EXISTENCES ========================
+"""
    
    
 #CATEGORY
@@ -257,6 +264,40 @@ def update_inventory(id_inventory):
             return f"Error al actualizar el inventario: {str(e)}"
     else:
         return jsonify(BADMETHOD), 405
+    
+    
+"""
+======================== ENDPOINTTS OF THE USERS ========================
+"""
+
+
+@app.route('/login', methods=['GET'])
+def get_user_password():
+    if request.method == 'GET':
+        data = request.json
+        user = data['user']
+        password = data['password']
+        ip = get_ip.get_host_ip()
+        try:
+            conexion.connect()
+            result = conexion.execute_procedure("obtener_informacion_usuario", user)
+            validacion = usersTable.validar_credenciales(password, result)
+            if validacion:
+                try:
+                    sSQL, values = usersTable.update_ip_count(result[0],ip)
+                    conexion.execute_post(sSQL, values)
+                    conexion.disconnect()
+                except Exception as e:
+                    return f"Error al actualizar la ip {str(e)}"
+                response = {"RFC":result[0][2],"privilage":result[0][3],"count":result[0][4],"ip":result[0][5]}
+                return jsonify(response)
+            else:
+                return "Credenciales invalidas"
+        except Exception as e:
+            return f"Error al obtener informacion de usuario {str(e)}"
+    else:
+        return jsonify(BADMETHOD),405
+
 
 if __name__ == "__main__":
     app.run()
