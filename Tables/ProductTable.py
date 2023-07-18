@@ -41,3 +41,9 @@ def update_product(old_numero_serie,data):
     query = "UPDATE `catalogo_producto` SET `numero_serie`=%s, `nombre_producto`=%s, `marca`=%s,`descripcion_producto`=%s,`presentacion`=%s,`precio`=%s,`catalogo_tipos_id_tipo`=%s,`modified_date`=%s, `modified_by` = %s WHERE (`numero_serie` = %s);"
     values = (new_numero_serie, nombre, marca, descripcion, presentacion, precio,categoria_id,modified_date, modified_by, old_numero_serie)
     return query, values
+
+
+def get_price(numero_serie):
+    query = "SELECT `nombre_producto`,`precio` FROM `catalogo_producto` WHERE `numero_serie`=%s"
+    values = (numero_serie,)
+    return query, values

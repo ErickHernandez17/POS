@@ -3,6 +3,9 @@ import Tables.CategoryTable as categoryTable
 import Tables.ProductTable as productTable
 import Tables.InventoryTable as inventoryTable
 import Tables.UsersTable as usersTable
+import Tables.TicketsTable as ticketTable
+import Tables.AddressTables as addressTables
+import Tables.EmployeeTable as employeeTable
 import get_ip
 from SQL import ConnectionToMySQL as sql
 
@@ -267,7 +270,7 @@ def update_inventory(id_inventory):
     
     
 """
-======================== ENDPOINTTS OF THE USERS ========================
+======================== ENDPOINT TO LOGIN ========================
 """
 
 
@@ -284,6 +287,10 @@ def get_user_password():
             validacion = usersTable.validar_credenciales(password, result)
             if validacion:
                 try:
+                    """
+                    Si pudimos iniciar sesion de manera exitosa entonce obtenemos la ip del equipo y hacemos las
+                    actualizaciones necesarias en la base de datos
+                    """
                     sSQL, values = usersTable.update_ip_count(result[0],ip)
                     conexion.execute_post(sSQL, values)
                     conexion.disconnect()
@@ -295,6 +302,121 @@ def get_user_password():
                 return "Credenciales invalidas"
         except Exception as e:
             return f"Error al obtener informacion de usuario {str(e)}"
+    else:
+        return jsonify(BADMETHOD),405
+
+
+@app.route('/sell', methods=['POST'])
+def sell_products():
+    if request.method == 'POST':
+        data = request.json
+        rfc = data['rfc']
+        fecha = data['fecha']
+        products = data['productos']
+        try:
+            conexion.connect()
+            id_ticket = conexion.execute_procedure("create_new_ticket", rfc, fecha)
+            if id_ticket != None:
+                for product in products:
+                    sSQL, values = ticketTable.insert_product_in_a_ticket(product, id_ticket[0][0])
+                    conexion.execute_post(sSQL, values)       
+            response = {"ticket id":id_ticket[0][0],"fecha":fecha}
+            tmp = []
+            for product in products:
+                sSQL, values = productTable.get_price(product['numero_serie'])
+                result = conexion.execute_select_with_values(sSQL, values)
+                total = float(result[0][1])* int(product['cantidad'])
+                tmp.append({"Producto":result[0][0], "Cantidad":product['cantidad'], "$$$":total})
+            response['productos'] = tmp
+            conexion.disconnect()
+            return jsonify(response)
+        except Exception as e:
+            return f"Error al realizar la venta: {str(e)}"
+    else:
+        return jsonify(BADMETHOD), 405
+
+
+@app.route('/add-country', methods=['POST'])
+def add_country():
+    if request.method == 'POST':
+        data = request.json
+        sSQL, values = addressTables.add_country(data)
+        try:
+            conexion.connect()
+            conexion.execute_post(sSQL, values)
+            conexion.disconnect()
+            response = {"message":"Pais agregado exitosamente"}
+            return jsonify(response)
+        except Exception as e:
+            return f"Erro al agregar el pais {str(e)}"
+    else:
+        return jsonify(BADMETHOD),405
+
+
+@app.route('/add-city',methods=['POST'])
+def add_city():
+    if request.method == 'POST':
+        data= request.json
+        sSQL, values = addressTables.add_city(data)
+        try:
+            conexion.connect()
+            conexion.execute_post(sSQL, values)
+            conexion.disconnect()
+            response = {"message":"Ciudad agregada exitosamente"}
+            return jsonify(response)
+        except Exception as e:
+            return f"Error al agregar la ciudad {str(e)}"
+    else:
+        return jsonify(BADMETHOD),405
+    
+    
+@app.route('/add-address',methods=['POST'])
+def add_address():
+    if request.method == 'POST':
+        data = request.json
+        sSQL, values = addressTables.add_address(data)
+        try:
+            conexion.connect()
+            conexion.execute_post(sSQL, values)
+            conexion.disconnect()
+            response = {"message":"Direccion agregado exitosamente"}
+            return jsonify(response)
+        except Exception as e:
+            return f"Error al agregar la direccion {str(e)}"
+    else:
+        return jsonify(BADMETHOD),405
+    
+    
+@app.route('/add-username', methods=['POST'])
+def add_username():
+    if request.method == 'POST':
+        data = request.json
+        sSQL, values =  usersTable.add_username(data)
+        try:
+            conexion.connect()
+            conexion.execute_post(sSQL, values)
+            conexion.disconnect()
+            response = {"message":"Usuario agregado exitosamente"}
+            return jsonify(response)
+        except Exception as e:
+            return f"Erro al agregar el usuario {str(e)}"
+    else:
+        return jsonify(BADMETHOD),405
+    
+    
+@app.route('/add-employee', methods=['POST'])
+def add_employee():
+    if request.method == 'POST':
+        data = request.json
+        sSQL, values = employeeTable.add_employee(data)
+        try:
+            conexion.connect()
+            conexion.execute_post(sSQL, values)
+            conexion.disconnect()
+            response = {"message":"Empleado agregado exitosamente"}
+            return jsonify(response)
+        except Exception as e:
+            return f"Error al agregar el empleado {str(e)}"
     else:
         return jsonify(BADMETHOD),405
 
