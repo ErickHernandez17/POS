@@ -7,12 +7,22 @@ def add_country(data):
     return query,values
 
 
+def get_country():
+    query = "SELECT * FROM `paises`"
+    return query
+
+
 def add_city(data):
     city = data['ciudad']
     id_country = int(data['id_pais'])
     query = "INSERT INTO `ciudades`(`ciudad`,`id_pais`) VALUES (%s,%s);"
     values = (city,id_country)
     return query, values
+
+
+def get_cities():
+    query = "SELECT * FROM `ciudades`"
+    return query
 
 
 def add_address(data):

@@ -7,19 +7,20 @@ import Tables.TicketsTable as ticketTable
 import Tables.AddressTables as addressTables
 import Tables.EmployeeTable as employeeTable
 import get_ip
+from flask_cors import CORS
 from SQL import ConnectionToMySQL as sql
 
 app = Flask(__name__)
-
+CORS(app, resources={r"/*": {"origins": "http://127.0.0.1:5001"}})
 conexion = sql.MySQLConnectorMaster()
 BADMETHOD = {"message":"Metodo no permitido"}    
-   
-   
+
+
 """
 ======================== ENDPOINTTS OF THE EXISTENCES ========================
 """
-   
-   
+
+
 #CATEGORY
     
     
@@ -274,11 +275,11 @@ def update_inventory(id_inventory):
 """
 
 
-@app.route('/login', methods=['GET'])
+@app.route('/login', methods=['POST'])
 def get_user_password():
-    if request.method == 'GET':
+    if request.method == 'POST':
         data = request.json
-        user = data['user']
+        user = data['username']
         password = data['password']
         ip = get_ip.get_host_ip()
         try:
@@ -296,12 +297,11 @@ def get_user_password():
                     conexion.disconnect()
                 except Exception as e:
                     return f"Error al actualizar la ip {str(e)}"
-                response = {"RFC":result[0][2],"privilage":result[0][3],"count":result[0][4],"ip":result[0][5]}
+                response = {"RFC":result[0][2],"privilage":result[0][3]}
                 return jsonify(response)
-            else:
-                return "Credenciales invalidas"
+            
         except Exception as e:
-            return f"Error al obtener informacion de usuario {str(e)}"
+            return jsonify({"error":"Credenciales invalidas"})
     else:
         return jsonify(BADMETHOD),405
 
@@ -353,6 +353,22 @@ def add_country():
         return jsonify(BADMETHOD),405
 
 
+@app.route('/get-contries', methods=['GET'])
+def get_all_countries():
+    if request.method == 'GET':
+        sSQL = addressTables.get_country()
+        try:
+            conexion.connect()
+            result = conexion.execute_select_withoutt_values(sSQL)
+            conexion.disconnect()
+            response = {"response":result}
+            return jsonify(response)
+        except Exception as e:
+            return f"Error al obtener los paises {str(e)}"
+    else:
+        return jsonify(BADMETHOD),405
+
+
 @app.route('/add-city',methods=['POST'])
 def add_city():
     if request.method == 'POST':
@@ -366,6 +382,22 @@ def add_city():
             return jsonify(response)
         except Exception as e:
             return f"Error al agregar la ciudad {str(e)}"
+    else:
+        return jsonify(BADMETHOD),405
+    
+    
+@app.route('/get-cities', methods=['GET'])
+def get_all_cities():
+    if request.method == 'GET':
+        sSQL = addressTables.get_cities()
+        try:
+            conexion.connect()
+            result =  conexion.execute_select_withoutt_values(sSQL)
+            conexion.disconnect()
+            response = {"response": result}
+            return jsonify(response)
+        except Exception as e:
+            return f"Error al obtener las ciudades {str(e)}"
     else:
         return jsonify(BADMETHOD),405
     
@@ -422,4 +454,4 @@ def add_employee():
 
 
 if __name__ == "__main__":
-    app.run()
+    app.run(debug=True)
